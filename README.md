@@ -320,4 +320,4 @@ Yahoo Finance historical data doesn't change intraday. A SHA256-keyed JSON cache
 
 ## License
 
-MIT
+Copyright © 2026 [Kanishk Bajpai](https://github.com/ikbajpai)
