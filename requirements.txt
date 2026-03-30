@@ -30,6 +30,23 @@ python-dotenv>=1.0.0
 typer>=0.12.0
 rich>=13.0.0
 
+# --- Feature: News Sentiment ---
+requests>=2.32.0
+
+# --- Feature: SEC RAG ---
+faiss-cpu>=1.8.0
+langchain-huggingface>=0.1.0
+sentence-transformers>=3.0.0
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
+
+# --- Feature: Streamlit Frontend ---
+streamlit>=1.35.0
+plotly>=5.22.0
+
+# --- Feature: Observability ---
+langsmith>=0.1.0
+
 # Testing
 pytest>=8.0.0
 pytest-asyncio>=0.23.0

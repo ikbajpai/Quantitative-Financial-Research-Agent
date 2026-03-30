@@ -18,6 +18,14 @@ class Settings(BaseSettings):
 
     LOG_LEVEL: str = "INFO"
 
+    # News Sentiment (optional — uses yfinance if not set)
+    NEWS_API_KEY: Optional[str] = None
+
+    # LangSmith Observability (Feature 4)
+    LANGCHAIN_TRACING_V2: bool = False
+    LANGCHAIN_API_KEY: Optional[str] = None
+    LANGCHAIN_PROJECT: str = "quant-financial-research-agent"
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 
