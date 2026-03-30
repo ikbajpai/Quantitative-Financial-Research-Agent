@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "quant-financial-research-agent"
+version = "1.0.0"
+description = "AI-powered quantitative financial research agent using LangChain"
+requires-python = ">=3.10"
+readme = "README.md"
+
+[project.scripts]
+quant-agent = "cli.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agent*", "tools*", "schemas*", "finance*", "api*", "cli*", "config*", "utils*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
