@@ -165,6 +165,12 @@ function renderError(msg) {
 }
 
 async function renderReport(data) {
+  // SEC filing RAG response
+  if (data.answer && data.source && data.ticker) {
+    renderSecReport(data);
+    return;
+  }
+
   // Natural language fallback — agent responded without using tools
   if (data.response && !data.metrics && !data.portfolio_metrics && !data.overall_sentiment) {
     resultsArea.innerHTML = `
@@ -233,6 +239,34 @@ async function renderReport(data) {
   }
 
   /* JSON toggle */
+  const toggleId = 'jsonBlk_' + Date.now();
+  const toggleEl = document.createElement('div');
+  toggleEl.innerHTML = `
+    <button class="json-toggle" onclick="toggleJson('${toggleId}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      View raw JSON
+    </button>
+    <div id="${toggleId}" class="json-block" style="display:none">${escHtml(JSON.stringify(data, null, 2))}</div>
+  `;
+  resultsArea.appendChild(toggleEl);
+}
+
+/* ─── SEC Filing report ─── */
+function renderSecReport(data) {
+  const sentColor = data.sentiment === 'Positive' ? '#10b981' : data.sentiment === 'Negative' ? '#ef4444' : '#94a3b8';
+  const conf = data.confidence != null ? ` · ${(data.confidence * 100).toFixed(0)}% confidence` : '';
+  const keyPoints = (data.key_points || []).map(p => `<li>${escHtml(p)}</li>`).join('');
+  const risks = (data.risks_mentioned || []).map(r => `<span class="theme-pill">${escHtml(r)}</span>`).join('');
+
+  resultsArea.innerHTML = `
+    <div class="sentiment-card" style="margin-bottom:1.2rem">
+      <div class="card-title">SEC Filing Analysis · ${escHtml(data.ticker || '')} · <span style="font-size:.75rem;color:var(--txt3)">${escHtml(data.source || '')}</span></div>
+      <div class="sentiment-badge" style="background:${sentColor}22;color:${sentColor};border-color:${sentColor}44">${escHtml(data.sentiment || 'Neutral')}${conf}</div>
+      <p style="margin-top:.9rem;font-size:.88rem;color:var(--txt1);line-height:1.75">${escHtml(data.answer || '')}</p>
+      ${keyPoints ? `<ul style="margin:.8rem 0 0 1.2rem;font-size:.83rem;color:var(--txt2);line-height:1.7">${keyPoints}</ul>` : ''}
+      ${risks ? `<div class="sentiment-themes" style="margin-top:.8rem"><strong style="font-size:.72rem;color:var(--txt3);letter-spacing:.06em">RISKS MENTIONED</strong><br>${risks}</div>` : ''}
+    </div>`;
+
   const toggleId = 'jsonBlk_' + Date.now();
   const toggleEl = document.createElement('div');
   toggleEl.innerHTML = `
@@ -479,7 +513,7 @@ optimizeBtn.addEventListener('click', async () => {
       alert(`Expected ${addedTickers.length} weights, got ${currentWeights.length}.`); return;
     }
     const sum = currentWeights.reduce((a, b) => a + b, 0);
-    if (Math.abs(sum - 1) > 0.02) { alert(`Weights must sum to 1.0 (got ${sum.toFixed(3)}).`); return; }
+    if (Math.abs(sum - 1) > 0.01) { alert(`Weights must sum to 1.0 (got ${sum.toFixed(3)}).`); return; }
   }
 
   const period = document.getElementById('optPeriod').value;

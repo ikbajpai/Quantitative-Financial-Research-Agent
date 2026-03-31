@@ -84,6 +84,14 @@ def run_query(
         if not isinstance(data, dict):
             continue
 
+        # News sentiment output — return immediately
+        if "overall_sentiment" in data and "confidence" in data:
+            return data
+
+        # SEC filing RAG output — return immediately
+        if "answer" in data and "source" in data and "ticker" in data:
+            return data
+
         # Collect build_final_report output
         if "report_type" in data:
             metrics_ok = (

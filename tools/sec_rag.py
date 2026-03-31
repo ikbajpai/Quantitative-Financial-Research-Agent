@@ -164,7 +164,13 @@ def _build_rag_response(text: str, query: str, ticker: str) -> str:
 
         from config import get_settings
         settings = get_settings()
-        llm = init_chat_model(settings.LLM_MODEL)
+        if settings.GROQ_API_KEY and settings.LLM_PROVIDER == "groq":
+            import os as _os
+            from langchain_groq import ChatGroq
+            _os.environ["GROQ_API_KEY"] = settings.GROQ_API_KEY
+            llm = ChatGroq(model=settings.LLM_MODEL, temperature=0)
+        else:
+            llm = init_chat_model(settings.LLM_MODEL)
 
         prompt = f"""You are analyzing a SEC filing for {ticker.upper()}.
 
