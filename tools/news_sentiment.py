@@ -86,8 +86,14 @@ def _analyze_news_sentiment(ticker: str, max_headlines: int = 10) -> str:
 
     try:
         from config import get_settings
+        import os
         settings = get_settings()
-        llm = init_chat_model(settings.LLM_MODEL)
+        if settings.GROQ_API_KEY and settings.LLM_PROVIDER == "groq":
+            from langchain_groq import ChatGroq
+            os.environ["GROQ_API_KEY"] = settings.GROQ_API_KEY
+            llm = ChatGroq(model=settings.LLM_MODEL, temperature=0)
+        else:
+            llm = init_chat_model(settings.LLM_MODEL)
         prompt = _SENTIMENT_PROMPT.format(ticker=ticker.upper(), headlines=headlines_text)
         response = llm.invoke([HumanMessage(content=prompt)])
         content_str = response.content.strip()

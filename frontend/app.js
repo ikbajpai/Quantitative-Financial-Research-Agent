@@ -165,6 +165,19 @@ function renderError(msg) {
 }
 
 async function renderReport(data) {
+  // Natural language fallback — agent responded without using tools
+  if (data.response && !data.metrics && !data.portfolio_metrics && !data.overall_sentiment) {
+    resultsArea.innerHTML = `
+      <div class="recommendation-banner" style="white-space:pre-wrap;line-height:1.9;font-size:.9rem">
+        <div style="font-size:.72rem;color:var(--txt3);margin-bottom:.6rem;font-weight:600;letter-spacing:.06em">AGENT RESPONSE</div>
+        ${escHtml(data.response)}
+      </div>
+      <div class="error-box" style="background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.25);color:var(--yellow)">
+        ⚠ The model responded without calling tools. Try rephrasing as: <em>"Calculate the risk metrics for AAPL vs MSFT over 5 years"</em>
+      </div>`;
+    return;
+  }
+
   const type    = data.report_type || 'comparison';
   const tickers = data.tickers || [];
   const period  = data.period  || getPeriod();

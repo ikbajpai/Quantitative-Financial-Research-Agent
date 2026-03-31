@@ -9,6 +9,7 @@ class Settings(BaseSettings):
 
     ANTHROPIC_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
+    GROQ_API_KEY: Optional[str] = None
 
     DEFAULT_RISK_FREE_RATE: float = 0.0425
     DEFAULT_BENCHMARK: str = "^GSPC"
