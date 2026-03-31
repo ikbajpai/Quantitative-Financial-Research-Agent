@@ -1,7 +1,8 @@
+import json
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
@@ -14,6 +15,13 @@ class AnalyzeRequest(BaseModel):
     query: str
     model: Optional[str] = None
     use_cache: bool = True
+
+
+class OptimizeRequest(BaseModel):
+    tickers: List[str]
+    current_weights: Optional[List[float]] = None
+    period: str = "3y"
+    risk_free_rate: float = 0.0425
 
 
 class HealthResponse(BaseModel):
@@ -65,3 +73,51 @@ async def analyze(request: AnalyzeRequest) -> Dict[str, Any]:
         cache.set(request.query, result, model_name)
 
     return result
+
+
+@router.get("/prices")
+async def get_prices(
+    tickers: str = Query(..., description="Comma-separated ticker symbols"),
+    period: str = Query("1y", description="Time period: 1y, 3y, 5y, etc."),
+) -> Dict[str, Any]:
+    """Returns historical price series for chart rendering."""
+    from finance.fetcher import fetch_multiple_tickers
+
+    ticker_list = [t.strip().upper() for t in tickers.split(",") if t.strip()]
+    if not ticker_list:
+        return {}
+
+    data = fetch_multiple_tickers(ticker_list, period=period)
+    result: Dict[str, Any] = {}
+
+    for ticker, df in data.items():
+        if df.empty:
+            continue
+        returns = df["returns"].dropna()
+        if len(returns) < 2:
+            continue
+        cum = (1 + returns).cumprod()
+        drawdown = ((cum / cum.cummax()) - 1) * 100
+        result[ticker] = {
+            "dates": [str(d.date()) for d in returns.index],
+            "close": [round(float(v), 2) for v in df.loc[returns.index, "close"]],
+            "cumulative_returns": [round(float(v), 3) for v in (cum - 1) * 100],
+            "drawdown": [round(float(v), 3) for v in drawdown],
+        }
+
+    return result
+
+
+@router.post("/optimize")
+async def optimize_direct(request: OptimizeRequest) -> Dict[str, Any]:
+    """Direct portfolio optimization endpoint (bypasses the agent)."""
+    from tools.portfolio_optimizer import _optimize_portfolio
+
+    raw = _optimize_portfolio(
+        tickers=request.tickers,
+        current_weights=request.current_weights,
+        period=request.period,
+        risk_free_rate=request.risk_free_rate,
+        include_frontier=True,
+    )
+    return json.loads(raw)

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quant Research Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">Q</div>
+        <div class="logo-text">
+          <span class="logo-title">QuantAgent</span>
+          <span class="logo-sub">AI Research</span>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Analysis</div>
+      <button class="nav-item active" data-page="research">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Research Agent
+      </button>
+      <button class="nav-item" data-page="optimizer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Portfolio Optimizer
+      </button>
+
+      <div class="nav-section-label" style="margin-top:1.5rem;">Config</div>
+      <div class="sidebar-select-wrap">
+        <label class="sidebar-label">LLM Model</label>
+        <select id="modelSelect" class="sidebar-select">
+          <option value="claude-sonnet-4-6">Claude Sonnet 4.6</option>
+          <option value="claude-opus-4-6">Claude Opus 4.6</option>
+          <option value="gpt-4o">GPT-4o</option>
+          <option value="gpt-4o-mini">GPT-4o Mini</option>
+        </select>
+      </div>
+      <div class="sidebar-select-wrap">
+        <label class="sidebar-label">Default Period</label>
+        <select id="periodSelect" class="sidebar-select">
+          <option value="1y">1 Year</option>
+          <option value="2y">2 Years</option>
+          <option value="3y" selected>3 Years</option>
+          <option value="5y">5 Years</option>
+          <option value="10y">10 Years</option>
+        </select>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Checking API…</span>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════ MAIN ═══════════════════ -->
+  <main class="main" id="main">
+
+    <!-- ─── RESEARCH PAGE ─── -->
+    <section class="page active" id="page-research">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Research Agent</h1>
+          <p class="page-subtitle">Ask any financial question — the AI fetches live data and generates a report</p>
+        </div>
+      </div>
+
+      <!-- Example chips -->
+      <div class="chips-row" id="exampleChips">
+        <span class="chip" data-query="Compare the risk profile of AAPL and MSFT over 5 years">AAPL vs MSFT</span>
+        <span class="chip" data-query="What is the risk profile of NVDA?">NVDA Risk</span>
+        <span class="chip" data-query="Analyze portfolio: 40% SPY, 30% QQQ, 20% TLT, 10% GLD">Sample Portfolio</span>
+        <span class="chip" data-query="Compare QQQ and SPY risk over 3 years">QQQ vs SPY</span>
+        <span class="chip" data-query="What is the news sentiment for TSLA?">TSLA Sentiment</span>
+        <span class="chip" data-query="What are the main risks in NVDA's latest 10-K?">NVDA 10-K</span>
+      </div>
+
+      <!-- Query input -->
+      <div class="query-box">
+        <input type="text" id="queryInput" class="query-input"
+          placeholder="e.g. 'Compare AAPL and GOOGL risk over 5 years'" />
+        <button class="query-btn" id="sendBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Analyze
+        </button>
+      </div>
+
+      <!-- Thinking state -->
+      <div class="thinking-box" id="thinkingBox" style="display:none">
+        <div class="thinking-header">
+          <div class="pulse-ring"></div>
+          <span id="thinkingLabel">Initializing agent…</span>
+        </div>
+        <div class="tool-steps" id="toolSteps"></div>
+      </div>
+
+      <!-- Results -->
+      <div id="resultsArea"></div>
+    </section>
+
+    <!-- ─── OPTIMIZER PAGE ─── -->
+    <section class="page" id="page-optimizer">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Portfolio Optimizer</h1>
+          <p class="page-subtitle">Markowitz Mean-Variance optimization — find the efficient frontier</p>
+        </div>
+      </div>
+
+      <div class="optimizer-layout">
+        <!-- Input panel -->
+        <div class="opt-panel card">
+          <h3 class="card-title">Configuration</h3>
+
+          <label class="field-label">Tickers <span class="field-hint">press Enter or comma to add</span></label>
+          <div class="ticker-input-wrap" id="tickerInputWrap">
+            <div class="ticker-tags" id="tickerTags"></div>
+            <input type="text" id="tickerInput" class="ticker-input-inner" placeholder="e.g. AAPL" />
+          </div>
+
+          <label class="field-label" style="margin-top:1.2rem;">
+            Current Weights <span class="field-hint">optional — comma separated, must sum to 1</span>
+          </label>
+          <input type="text" id="weightsInput" class="form-input" placeholder="e.g. 0.3, 0.25, 0.2, 0.15, 0.1" />
+
+          <div class="form-row">
+            <div>
+              <label class="field-label">Period</label>
+              <select id="optPeriod" class="form-input">
+                <option value="1y">1 Year</option>
+                <option value="2y">2 Years</option>
+                <option value="3y" selected>3 Years</option>
+                <option value="5y">5 Years</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">Risk-Free Rate (%)</label>
+              <input type="number" id="optRfr" class="form-input" value="4.25" min="0" max="15" step="0.25" />
+            </div>
+          </div>
+
+          <button class="primary-btn" id="optimizeBtn" style="margin-top:1.5rem;width:100%;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Run Optimization
+          </button>
+        </div>
+
+        <!-- Results panel -->
+        <div class="opt-results" id="optResults">
+          <div class="empty-state">
+            <div class="empty-icon">⚖️</div>
+            <p>Enter tickers and click <strong>Run Optimization</strong> to see the efficient frontier</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
