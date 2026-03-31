@@ -27,6 +27,12 @@ class Settings(BaseSettings):
     LANGCHAIN_API_KEY: Optional[str] = None
     LANGCHAIN_PROJECT: str = "quant-financial-research-agent"
 
+    # Google OAuth2
+    GOOGLE_CLIENT_ID: Optional[str] = None
+    GOOGLE_CLIENT_SECRET: Optional[str] = None
+    SECRET_KEY: str = "3f2e65d7c433cafe93cd7b07cdd4200cc89cfda7319fa5393f7c605e3625a194"
+    BASE_URL: str = "http://localhost:8000"
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 

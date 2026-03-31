@@ -4,9 +4,12 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 
 from api.routes import router
+from api.auth_routes import router as auth_router
 from finance.fetcher import DataFetchError
+from config import get_settings
 
 try:
     from groq import RateLimitError as GroqRateLimitError
@@ -19,11 +22,14 @@ app = FastAPI(
     version="1.0.0",
 )
 
+_settings = get_settings()
+app.add_middleware(SessionMiddleware, secret_key=_settings.SECRET_KEY)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=True,
 )
 
 
@@ -64,6 +70,7 @@ async def generic_error_handler(request: Request, exc: Exception):
     )
 
 
+app.include_router(auth_router)
 app.include_router(router, prefix="/api")
 
 # Serve frontend static files

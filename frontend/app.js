@@ -5,6 +5,60 @@
 
 const API = '/api';
 
+/* ════════════════════════════════
+   AUTH
+════════════════════════════════ */
+async function initAuth() {
+  try {
+    const res  = await fetch('/auth/status');
+    const data = await res.json();
+
+    if (!data.configured) {
+      // Google OAuth not set up — run in dev mode, hide overlay
+      document.getElementById('loginOverlay').style.display = 'none';
+      return;
+    }
+
+    if (!data.authenticated) {
+      document.getElementById('loginOverlay').style.display = 'flex';
+      return;
+    }
+
+    // Authenticated — hide overlay, show user profile
+    document.getElementById('loginOverlay').style.display = 'none';
+    renderUserProfile(data.user);
+  } catch {
+    // API unreachable — still allow app to load
+    document.getElementById('loginOverlay').style.display = 'none';
+  }
+}
+
+function renderUserProfile(user) {
+  if (!user) return;
+  const profileEl = document.getElementById('userProfile');
+  const avatarEl  = document.getElementById('userAvatar');
+  const nameEl    = document.getElementById('userName');
+  const emailEl   = document.getElementById('userEmail');
+
+  if (user.picture) {
+    avatarEl.src = user.picture;
+    avatarEl.style.display = 'block';
+  } else {
+    // Fallback initials avatar
+    avatarEl.style.display = 'none';
+    const placeholder = document.createElement('div');
+    placeholder.className = 'user-avatar-placeholder';
+    placeholder.textContent = (user.name || user.email || '?')[0].toUpperCase();
+    avatarEl.parentNode.insertBefore(placeholder, avatarEl);
+  }
+
+  nameEl.textContent  = user.name  || '';
+  emailEl.textContent = user.email || '';
+  profileEl.style.display = 'flex';
+}
+
+initAuth();
+
 const PLOTLY_LAYOUT_BASE = {
   paper_bgcolor: 'transparent',
   plot_bgcolor:  'transparent',

@@ -930,3 +930,165 @@ body {
   .metrics-grid { grid-template-columns: repeat(2, 1fr); }
   .opt-summary-row { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════
+   AUTH — LOGIN OVERLAY
+═══════════════════════════════════════════ */
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn .3s ease;
+}
+
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1.2rem;
+  padding: 3rem 2.5rem;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 32px 80px rgba(0,0,0,.5);
+}
+
+.login-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+}
+
+.login-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--txt1);
+  margin: 0 0 .4rem;
+  letter-spacing: -.02em;
+}
+
+.login-subtitle {
+  color: var(--txt3);
+  font-size: .88rem;
+  margin: 0 0 2rem;
+  line-height: 1.5;
+}
+
+.google-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .8rem 1.8rem;
+  background: #fff;
+  color: #3c4043;
+  font-size: .92rem;
+  font-weight: 500;
+  border-radius: .6rem;
+  text-decoration: none;
+  transition: box-shadow .15s, transform .1s;
+  border: 1px solid #dadce0;
+  width: 100%;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,.15);
+}
+
+.google-btn:hover {
+  box-shadow: 0 2px 10px rgba(0,0,0,.25);
+  transform: translateY(-1px);
+}
+
+.google-btn:active { transform: translateY(0); }
+
+.login-note {
+  margin-top: 1.4rem;
+  font-size: .76rem;
+  color: var(--txt3);
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════
+   AUTH — USER PROFILE IN SIDEBAR
+═══════════════════════════════════════════ */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .5rem;
+  background: rgba(255,255,255,.03);
+  border-radius: .6rem;
+  margin-bottom: .5rem;
+  width: 100%;
+}
+
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+
+.user-avatar-placeholder {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .8rem;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.user-name {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--txt1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  font-size: .68rem;
+  color: var(--txt3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logout-btn {
+  color: var(--txt3);
+  text-decoration: none;
+  padding: .3rem;
+  border-radius: .3rem;
+  display: flex;
+  align-items: center;
+  transition: color .15s, background .15s;
+  flex-shrink: 0;
+}
+
+.logout-btn:hover {
+  color: #ef4444;
+  background: rgba(239,68,68,.1);
+}
+
+.api-status {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .72rem;
+  color: var(--txt3);
+}
